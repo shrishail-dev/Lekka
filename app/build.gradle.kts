@@ -99,3 +99,9 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
+
+// Room writes its schema history here (see AppDatabase's exportSchema = true) — kept under
+// version control so every past schema is available as a reference when writing migrations.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}

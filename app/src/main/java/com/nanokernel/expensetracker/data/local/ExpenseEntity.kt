@@ -1,5 +1,6 @@
 package com.nanokernel.expensetracker.data.local
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.nanokernel.expensetracker.data.model.CategoryType
@@ -15,7 +16,9 @@ data class ExpenseEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val amount: Double,
     val category: String,
-    val type: String,
+    // Explicit default so the v1->v2 Migration's ALTER TABLE ... DEFAULT clause matches Room's
+    // own expected schema for this column — otherwise migration validation fails on upgrade.
+    @ColumnInfo(defaultValue = "WANT") val type: String = "WANT",
     val note: String?,
     val timestampMillis: Long
 )

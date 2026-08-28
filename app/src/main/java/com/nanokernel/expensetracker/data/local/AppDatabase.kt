@@ -8,7 +8,7 @@ import androidx.room.RoomDatabase
 @Database(
     entities = [ExpenseEntity::class, BorrowEntity::class, EventEntity::class, EventExpenseEntity::class],
     version = 4,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
@@ -26,11 +26,10 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "expense_tracker.db"
                 )
-                    // No migration path defined yet for the v1 -> v2 (added `type`), v2 -> v3
-                    // (added `borrows` table), or v3 -> v4 (added `events`/`event_expenses`)
-                    // schema changes; acceptable pre-release, but revisit with a real Migration
-                    // before shipping.
-                    .fallbackToDestructiveMigration()
+                    // Real migrations (see AppDatabaseMigrations.kt) — no fallback on purpose:
+                    // a missing migration should crash loudly during development, not silently
+                    // wipe a user's data the way fallbackToDestructiveMigration() would.
+                    .addMigrations(*allMigrations)
                     .build().also { INSTANCE = it }
             }
     }
