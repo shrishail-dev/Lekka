@@ -17,6 +17,8 @@ local.properties
 # OS
 .DS_Store
 
-# Signing (never commit a real keystore)
+# Signing (never commit a real keystore or its passwords)
 *.jks
 *.keystore
+keystore/
+keystore.properties
