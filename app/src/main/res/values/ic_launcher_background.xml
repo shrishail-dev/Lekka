@@ -1,0 +1,4 @@
+<resources>
+    <!-- Matches the app's Primary ledger-green so the icon reads as part of the same brand. -->
+    <color name="ic_launcher_background">#1F5D42</color>
+</resources>

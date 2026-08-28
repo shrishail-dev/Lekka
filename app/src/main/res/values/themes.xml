@@ -1,0 +1,5 @@
+<resources>
+    <!-- The real theming happens in Compose (ui/theme/Theme.kt); this is only the
+         placeholder theme Android needs before Compose content is set. -->
+    <style name="Theme.ExpenseTracker" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

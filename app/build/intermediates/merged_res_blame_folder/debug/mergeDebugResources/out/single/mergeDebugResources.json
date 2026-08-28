@@ -1,0 +1,70 @@
+[
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/drawable_lekka_logo.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/drawable/lekka_logo.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/drawable_ic_launcher_monochrome.xml.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/drawable/ic_launcher_monochrome.xml"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.nanokernel.expensetracker.app-debug-57:/xml_file_paths.xml.flat",
+        "source": "com.nanokernel.expensetracker.app-main-59:/xml/file_paths.xml"
+    },
+    {
+        "merged": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-debug-57:/drawable_ic_lekka_logo.xml.flat",
+        "source": "/home/shri/.gradle/daemon/8.7/com.nanokernel.expensetracker.app-main-59:/drawable/ic_lekka_logo.xml"
+    }
+]
