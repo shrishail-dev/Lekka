@@ -6,8 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [ExpenseEntity::class, BorrowEntity::class, EventEntity::class, EventExpenseEntity::class],
-    version = 4,
+    entities = [
+        ExpenseEntity::class, BorrowEntity::class, EventEntity::class, EventExpenseEntity::class,
+        LentEntity::class
+    ],
+    version = 5,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -15,6 +18,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun borrowDao(): BorrowDao
     abstract fun eventDao(): EventDao
     abstract fun eventExpenseDao(): EventExpenseDao
+    abstract fun lentDao(): LentDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null

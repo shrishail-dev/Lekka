@@ -9,12 +9,14 @@ import com.nanokernel.expensetracker.data.repository.BorrowRepository
 import com.nanokernel.expensetracker.data.repository.EventExpenseRepository
 import com.nanokernel.expensetracker.data.repository.EventRepository
 import com.nanokernel.expensetracker.data.repository.ExpenseRepository
+import com.nanokernel.expensetracker.data.repository.LentRepository
 import com.nanokernel.expensetracker.data.repository.SettingsRepository
 import com.nanokernel.expensetracker.util.DateUtils
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.YearMonth
@@ -23,6 +25,7 @@ data class HomeUiState(
     val monthTotal: Double = 0.0,
     val budget: Double = SettingsRepository.DEFAULT_BUDGET,
     val borrowed: Double = 0.0,
+    val lent: Double = 0.0,
     val todayTotal: Double = 0.0,
     val weekTotal: Double = 0.0,
     val recentExpenses: List<ExpenseEntity> = emptyList(),
@@ -39,8 +42,11 @@ class HomeViewModel(
     private val borrowRepository: BorrowRepository,
     private val eventRepository: EventRepository,
     private val eventExpenseRepository: EventExpenseRepository,
+    private val lentRepository: LentRepository,
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
+
+    private val lentTotalFlow: Flow<Double> = lentRepository.allLent.map { it.sumOf { lent -> lent.amount } }
 
     // Only the active (non-archived) events' running total — kept entirely separate from
     // monthTotal/budget/balance above, never folded into them.
@@ -75,8 +81,12 @@ class HomeViewModel(
         )
     }
 
-    val uiState: StateFlow<HomeUiState> = combine(baseFlow, eventsSummaryFlow) { base, (activeCount, eventsTotal) ->
-        base.copy(activeEventCount = activeCount, activeEventsTotal = eventsTotal)
+    val uiState: StateFlow<HomeUiState> = combine(
+        baseFlow,
+        eventsSummaryFlow,
+        lentTotalFlow
+    ) { base, (activeCount, eventsTotal), lentTotal ->
+        base.copy(activeEventCount = activeCount, activeEventsTotal = eventsTotal, lent = lentTotal)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),

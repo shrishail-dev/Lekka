@@ -6,6 +6,7 @@ import com.nanokernel.expensetracker.data.repository.BorrowRepository
 import com.nanokernel.expensetracker.data.repository.EventExpenseRepository
 import com.nanokernel.expensetracker.data.repository.EventRepository
 import com.nanokernel.expensetracker.data.repository.ExpenseRepository
+import com.nanokernel.expensetracker.data.repository.LentRepository
 import com.nanokernel.expensetracker.data.repository.SettingsRepository
 import com.nanokernel.expensetracker.reminder.ReminderScheduler
 import com.nanokernel.expensetracker.reminder.createReminderNotificationChannel
@@ -21,6 +22,7 @@ class ExpenseTrackerApp : Application() {
     val borrowRepository by lazy { BorrowRepository(database.borrowDao()) }
     val eventRepository by lazy { EventRepository(database.eventDao()) }
     val eventExpenseRepository by lazy { EventExpenseRepository(database.eventExpenseDao()) }
+    val lentRepository by lazy { LentRepository(database.lentDao()) }
     val settingsRepository by lazy { SettingsRepository(this) }
 
     override fun onCreate() {

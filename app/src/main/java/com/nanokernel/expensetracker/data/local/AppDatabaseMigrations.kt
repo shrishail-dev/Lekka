@@ -41,4 +41,13 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
     }
 }
 
-val allMigrations = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE IF NOT EXISTS `lent` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`amount` REAL NOT NULL, `recipient` TEXT, `note` TEXT, `timestampMillis` INTEGER NOT NULL)"
+        )
+    }
+}
+
+val allMigrations = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)

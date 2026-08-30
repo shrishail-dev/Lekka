@@ -64,7 +64,12 @@ import com.nanokernel.expensetracker.util.DateUtils
 import java.time.YearMonth
 
 @Composable
-fun HomeScreen(onExpenseClick: (Long) -> Unit, onBorrowedClick: () -> Unit, onEventsClick: () -> Unit) {
+fun HomeScreen(
+    onExpenseClick: (Long) -> Unit,
+    onBorrowedClick: () -> Unit,
+    onEventsClick: () -> Unit,
+    onLentClick: () -> Unit
+) {
     val context = LocalContext.current
     val app = context.applicationContext as ExpenseTrackerApp
     val viewModel: HomeViewModel = viewModel(
@@ -75,6 +80,7 @@ fun HomeScreen(onExpenseClick: (Long) -> Unit, onBorrowedClick: () -> Unit, onEv
                     app.borrowRepository,
                     app.eventRepository,
                     app.eventExpenseRepository,
+                    app.lentRepository,
                     app.settingsRepository
                 )
             }
@@ -181,17 +187,27 @@ fun HomeScreen(onExpenseClick: (Long) -> Unit, onBorrowedClick: () -> Unit, onEv
         }
 
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                BorrowedCard(
-                    value = CurrencyFormatter.format(state.borrowed, state.currencySymbol),
-                    onClick = onBorrowedClick,
-                    modifier = Modifier.weight(1f)
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                // Borrowed/Lent paired first — both are the same "money owed" concept, just in
+                // opposite directions — with Events as its own full-width row below since it's
+                // an unrelated concept (event budgets, not debts).
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                    BorrowedCard(
+                        value = CurrencyFormatter.format(state.borrowed, state.currencySymbol),
+                        onClick = onBorrowedClick,
+                        modifier = Modifier.weight(1f)
+                    )
+                    LentCard(
+                        value = CurrencyFormatter.format(state.lent, state.currencySymbol),
+                        onClick = onLentClick,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
                 EventsCard(
                     count = state.activeEventCount,
                     value = CurrencyFormatter.format(state.activeEventsTotal, state.currencySymbol),
                     onClick = onEventsClick,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
@@ -314,6 +330,47 @@ private fun BorrowedCard(value: String, onClick: () -> Unit, modifier: Modifier 
             Icon(
                 Icons.Filled.ChevronRight,
                 contentDescription = "View borrowed money",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+/** Mirrors [BorrowedCard] but for the opposite direction — money others owe you. */
+@Composable
+private fun LentCard(value: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    OutlinedCard(
+        modifier = modifier.clickable(onClick = onClick),
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "LENT",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    value,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+            Spacer(Modifier.width(4.dp))
+            Icon(
+                Icons.Filled.ChevronRight,
+                contentDescription = "View lent money",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

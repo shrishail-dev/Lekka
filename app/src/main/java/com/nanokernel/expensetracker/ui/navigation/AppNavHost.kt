@@ -54,6 +54,8 @@ import com.nanokernel.expensetracker.ui.event.EventListScreen
 import com.nanokernel.expensetracker.ui.expensedetail.ExpenseDetailScreen
 import com.nanokernel.expensetracker.ui.home.HomeScreen
 import com.nanokernel.expensetracker.ui.insights.InsightsScreen
+import com.nanokernel.expensetracker.ui.lent.AddLentScreen
+import com.nanokernel.expensetracker.ui.lent.LentListScreen
 import com.nanokernel.expensetracker.ui.report.MonthlyReportScreen
 
 private data class BottomTab(val screen: Screen, val label: String, val icon: ImageVector)
@@ -167,7 +169,8 @@ fun AppNavHost() {
                 HomeScreen(
                     onExpenseClick = onExpenseClick,
                     onBorrowedClick = { navController.navigate(Screen.BorrowList.route) },
-                    onEventsClick = { navController.navigate(Screen.EventList.route) }
+                    onEventsClick = { navController.navigate(Screen.EventList.route) },
+                    onLentClick = { navController.navigate(Screen.LentList.route) }
                 )
             }
             composable(
@@ -220,6 +223,23 @@ fun AppNavHost() {
                 AddBorrowScreen(
                     onDone = { navController.popBackStack() },
                     editingBorrowId = idArg?.toLongOrNull()
+                )
+            }
+            composable(Screen.LentList.route) {
+                LentListScreen(
+                    onBack = { navController.popBackStack() },
+                    onAddLent = { navController.navigate(Screen.AddLent.route) },
+                    onEditLent = { id -> navController.navigate("${Screen.AddLent.route}?id=$id") }
+                )
+            }
+            composable(
+                route = "${Screen.AddLent.route}?id={id}",
+                arguments = listOf(navArgument("id") { type = NavType.StringType; nullable = true })
+            ) { backStackEntry ->
+                val idArg = backStackEntry.arguments?.getString("id")
+                AddLentScreen(
+                    onDone = { navController.popBackStack() },
+                    editingLentId = idArg?.toLongOrNull()
                 )
             }
             composable(Screen.EventList.route) {
