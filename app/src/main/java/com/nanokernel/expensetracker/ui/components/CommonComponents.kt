@@ -165,8 +165,8 @@ fun DeleteExpenseDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
 fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
     OutlinedCard(
         modifier = modifier,
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(0.dp, Color.Transparent)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(

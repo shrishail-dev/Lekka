@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,12 +22,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -54,6 +52,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.nanokernel.expensetracker.ExpenseTrackerApp
 import com.nanokernel.expensetracker.data.local.ExpenseEntity
 import com.nanokernel.expensetracker.data.model.findById
+import com.nanokernel.expensetracker.ui.components.CategoryIcon
 import com.nanokernel.expensetracker.ui.components.DeleteExpenseDialog
 import com.nanokernel.expensetracker.ui.components.ExpenseListRow
 import com.nanokernel.expensetracker.ui.components.ScreenHeader
@@ -129,43 +128,78 @@ fun HomeScreen(
         item { ScreenHeader("Lekka") }
 
         item {
-            OutlinedCard(
+            // Balance gets real visual priority as the one number that matters most at a
+            // glance — Spent/Budget are supporting detail underneath, not equal-weight columns.
+            // The whole card recolors to the error tone when over budget, so "you're over" is
+            // visible without reading any numbers.
+            val overBudget = state.balance < 0
+            val heroColor = if (overBudget) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+            val onHeroColor = if (overBudget) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                colors = CardDefaults.cardColors(containerColor = heroColor),
+                shape = MaterialTheme.shapes.large
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text(
                         DateUtils.formatMonthLabel(YearMonth.now()),
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = onHeroColor.copy(alpha = 0.85f)
                     )
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        if (overBudget) "OVER BUDGET" else "BALANCE",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = onHeroColor.copy(alpha = 0.75f)
+                    )
+                    Text(
+                        CurrencyFormatter.format(kotlin.math.abs(state.balance), state.currencySymbol),
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = onHeroColor,
+                        maxLines = 1
+                    )
+                    Spacer(Modifier.height(18.dp))
+                    HorizontalDivider(color = onHeroColor.copy(alpha = 0.2f))
                     Spacer(Modifier.height(14.dp))
-
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        SummaryColumn(
-                            label = "Expenses",
-                            value = CurrencyFormatter.format(state.monthTotal, state.currencySymbol),
-                            valueColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.weight(1f)
-                        )
-                        SummaryColumn(
-                            label = "Budget",
-                            value = CurrencyFormatter.format(state.budget, state.currencySymbol),
-                            valueColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.weight(1f),
-                            onEdit = { showBudgetDialog = true }
-                        )
-                        SummaryColumn(
-                            label = "Balance",
-                            value = CurrencyFormatter.format(state.balance, state.currencySymbol),
-                            valueColor = if (state.balance >= 0) {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.error
-                            },
-                            modifier = Modifier.weight(1f)
-                        )
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column {
+                            Text(
+                                "SPENT THIS MONTH",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = onHeroColor.copy(alpha = 0.75f)
+                            )
+                            Text(
+                                CurrencyFormatter.format(state.monthTotal, state.currencySymbol),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = onHeroColor
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.End,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable { showBudgetDialog = true }
+                        ) {
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(
+                                    "BUDGET",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = onHeroColor.copy(alpha = 0.75f)
+                                )
+                                Text(
+                                    CurrencyFormatter.format(state.budget, state.currencySymbol),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = onHeroColor
+                                )
+                            }
+                            Spacer(Modifier.width(4.dp))
+                            Icon(
+                                Icons.Filled.Edit,
+                                contentDescription = "Edit budget",
+                                tint = onHeroColor.copy(alpha = 0.75f),
+                                modifier = Modifier.size(14.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -192,20 +226,31 @@ fun HomeScreen(
                 // opposite directions — with Events as its own full-width row below since it's
                 // an unrelated concept (event budgets, not debts).
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
-                    BorrowedCard(
+                    TrackerCard(
+                        emoji = "💸",
+                        iconColor = MaterialTheme.colorScheme.error,
+                        label = "BORROWED",
                         value = CurrencyFormatter.format(state.borrowed, state.currencySymbol),
+                        valueColor = MaterialTheme.colorScheme.error,
                         onClick = onBorrowedClick,
                         modifier = Modifier.weight(1f)
                     )
-                    LentCard(
+                    TrackerCard(
+                        emoji = "🤝",
+                        iconColor = MaterialTheme.colorScheme.primary,
+                        label = "LENT",
                         value = CurrencyFormatter.format(state.lent, state.currencySymbol),
+                        valueColor = MaterialTheme.colorScheme.primary,
                         onClick = onLentClick,
                         modifier = Modifier.weight(1f)
                     )
                 }
-                EventsCard(
-                    count = state.activeEventCount,
+                TrackerCard(
+                    emoji = "🎉",
+                    iconColor = MaterialTheme.colorScheme.tertiary,
+                    label = if (state.activeEventCount > 0) "EVENTS (${state.activeEventCount})" else "EVENTS",
                     value = CurrencyFormatter.format(state.activeEventsTotal, state.currencySymbol),
+                    valueColor = MaterialTheme.colorScheme.onSurface,
                     onClick = onEventsClick,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -254,65 +299,36 @@ fun HomeScreen(
     }
 }
 
+/** Shared by Borrowed/Lent/Events — a leading emoji icon, a small label + value, and a chevron.
+ *  Flat filled card (no border) to match the friendlier, less bordered-ledger look. */
 @Composable
-private fun SummaryColumn(
+private fun TrackerCard(
+    emoji: String,
+    iconColor: Color,
     label: String,
     value: String,
     valueColor: Color,
-    modifier: Modifier = Modifier,
-    onEdit: (() -> Unit)? = null
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier, horizontalAlignment = Alignment.Start) {
-        // Fixed height regardless of whether the edit icon is present, so the value text below
-        // lines up across columns — Budget's icon would otherwise make its label row taller than
-        // Expenses'/Balance's and push its value down out of alignment.
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(18.dp)) {
-            Text(
-                label.uppercase(),
-                style = MaterialTheme.typography.labelSmall,
-                color = valueColor.copy(alpha = 0.8f)
-            )
-            if (onEdit != null) {
-                IconButton(onClick = onEdit, modifier = Modifier.size(18.dp)) {
-                    Icon(
-                        Icons.Filled.Edit,
-                        contentDescription = "Edit $label",
-                        tint = valueColor.copy(alpha = 0.8f),
-                        modifier = Modifier.size(12.dp)
-                    )
-                }
-            }
-        }
-        Spacer(Modifier.height(2.dp))
-        Text(
-            value,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = valueColor,
-            maxLines = 1
-        )
-    }
-}
-
-@Composable
-private fun BorrowedCard(value: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    OutlinedCard(
+    Card(
         modifier = modifier.clickable(onClick = onClick),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        shape = MaterialTheme.shapes.medium
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // weight(1f) + single-line text on both cards guarantees the same row height (and
-            // chevron position) on the Home screen regardless of which card's text is longer.
+            CategoryIcon(emoji, iconColor, size = 32.dp)
+            Spacer(Modifier.width(10.dp))
+            // weight(1f) + single-line text guarantees the same row height (and chevron
+            // position) across cards regardless of which one's text is longer.
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "BORROWED",
+                    label,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -321,93 +337,15 @@ private fun BorrowedCard(value: String, onClick: () -> Unit, modifier: Modifier 
                 Text(
                     value,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.error,
+                    color = valueColor,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Spacer(Modifier.width(4.dp))
             Icon(
                 Icons.Filled.ChevronRight,
-                contentDescription = "View borrowed money",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-/** Mirrors [BorrowedCard] but for the opposite direction — money others owe you. */
-@Composable
-private fun LentCard(value: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    OutlinedCard(
-        modifier = modifier.clickable(onClick = onClick),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    "LENT",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    value,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Spacer(Modifier.width(4.dp))
-            Icon(
-                Icons.Filled.ChevronRight,
-                contentDescription = "View lent money",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-/** Mirrors [BorrowedCard] — total is active (non-archived) events only, kept separate from
- *  the monthly budget math above; tapping it opens the event list. */
-@Composable
-private fun EventsCard(count: Int, value: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    OutlinedCard(
-        modifier = modifier.clickable(onClick = onClick),
-        colors = CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 14.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    if (count > 0) "EVENTS ($count)" else "EVENTS",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(value, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
-            Spacer(Modifier.width(4.dp))
-            Icon(
-                Icons.Filled.ChevronRight,
-                contentDescription = "View events",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
     }
