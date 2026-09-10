@@ -50,4 +50,28 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
     }
 }
 
-val allMigrations = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+// Repairs devices whose `expenses` table predates MIGRATION_1_2 — e.g. one created directly by
+// an old build's fallbackToDestructiveMigration(), before ExpenseEntity.type had a declared
+// default. Such a table already has a `type` column, so MIGRATION_1_2's ALTER TABLE never ran
+// for it, and it was never stamped as pre-version-2 either (that old build stamped it as
+// whatever version the DB schema was declared at then) — so it reaches here with `type TEXT
+// NOT NULL` but no `DEFAULT 'WANT'`, which fails Room's schema validation against the entity's
+// current @ColumnInfo(defaultValue = "WANT"). Rebuilding the table (SQLite has no ALTER COLUMN)
+// is safe to run unconditionally, including on a table that already has the correct default.
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            "CREATE TABLE `expenses_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                "`amount` REAL NOT NULL, `category` TEXT NOT NULL, `type` TEXT NOT NULL DEFAULT 'WANT', " +
+                "`note` TEXT, `timestampMillis` INTEGER NOT NULL)"
+        )
+        db.execSQL(
+            "INSERT INTO `expenses_new` (`id`, `amount`, `category`, `type`, `note`, `timestampMillis`) " +
+                "SELECT `id`, `amount`, `category`, `type`, `note`, `timestampMillis` FROM `expenses`"
+        )
+        db.execSQL("DROP TABLE `expenses`")
+        db.execSQL("ALTER TABLE `expenses_new` RENAME TO `expenses`")
+    }
+}
+
+val allMigrations = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)

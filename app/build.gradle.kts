@@ -40,6 +40,9 @@ android {
 
     buildTypes {
         release {
+            // Re-enabled: the "Lekka keeps stopping" crash turned out to be an unrelated Room
+            // migration bug (see AppDatabaseMigrations.kt MIGRATION_5_6), confirmed via real
+            // device logcat — R8 was never the cause.
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

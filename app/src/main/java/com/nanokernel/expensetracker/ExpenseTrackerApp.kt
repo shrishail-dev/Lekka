@@ -1,6 +1,7 @@
 package com.nanokernel.expensetracker
 
 import android.app.Application
+import android.util.Log
 import com.nanokernel.expensetracker.data.local.AppDatabase
 import com.nanokernel.expensetracker.data.repository.BorrowRepository
 import com.nanokernel.expensetracker.data.repository.EventExpenseRepository
@@ -27,8 +28,14 @@ class ExpenseTrackerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        createExportNotificationChannel(this)
-        createReminderNotificationChannel(this)
-        ReminderScheduler.scheduleDaily(this)
+        // Startup housekeeping (notification channels, arming the reminder alarm) must never be
+        // able to crash the whole app before a single screen renders — if any OEM/Android
+        // version quirk trips one of these, log it and keep going instead of taking Lekka down.
+        runCatching { createExportNotificationChannel(this) }
+            .onFailure { Log.e("ExpenseTrackerApp", "createExportNotificationChannel failed", it) }
+        runCatching { createReminderNotificationChannel(this) }
+            .onFailure { Log.e("ExpenseTrackerApp", "createReminderNotificationChannel failed", it) }
+        runCatching { ReminderScheduler.scheduleDaily(this) }
+            .onFailure { Log.e("ExpenseTrackerApp", "ReminderScheduler.scheduleDaily failed", it) }
     }
 }
